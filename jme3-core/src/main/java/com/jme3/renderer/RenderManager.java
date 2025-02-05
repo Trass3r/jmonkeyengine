@@ -758,6 +758,9 @@ public class RenderManager {
             lightList = filteredLightList;
         }
 
+        // Report the number of lights we're about to render to the statistics.
+        renderer.getStatistics().onLights(lightList.size());
+
         renderGeometry(geom, lightList);
     }
 
