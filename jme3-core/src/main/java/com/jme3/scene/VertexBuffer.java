@@ -1130,6 +1130,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         oc.write(offset, "offset", 0);
         oc.write(stride, "stride", 0);
         oc.write(instanceSpan, "instanceSpan", 0);
+        oc.write(name, "name", null);
 
         String dataName = "data" + format.name();
         Buffer roData = getDataReadOnly();
@@ -1166,6 +1167,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         offset = ic.readInt("offset", 0);
         stride = ic.readInt("stride", 0);
         instanceSpan = ic.readInt("instanceSpan", 0);
+        name = ic.readString("name", null);
         componentsLength = components * format.getComponentSize();
 
         String dataName = "data" + format.name();
