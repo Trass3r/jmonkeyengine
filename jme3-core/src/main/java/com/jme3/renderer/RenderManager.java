@@ -69,6 +69,7 @@ import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
@@ -758,11 +759,16 @@ public class RenderManager {
             lightList = filteredLightList;
         }
 
+        for (com.jme3.light.Light light : lightList)
+            lightsInUse.add(light);
+
         // Report the number of lights we're about to render to the statistics.
         renderer.getStatistics().onLights(lightList.size());
+        renderer.getStatistics().onLightsInUse(lightsInUse.size());
 
         renderGeometry(geom, lightList);
     }
+    private HashSet<com.jme3.light.Light> lightsInUse = new HashSet<>();
 
     /**
      * Renders a single {@link Geometry} with a specific list of lights.
@@ -1017,6 +1023,7 @@ public class RenderManager {
      */
     public void clearQueue(ViewPort vp) {
         vp.getQueue().clear();
+        lightsInUse.clear();
     }
 
     /**
