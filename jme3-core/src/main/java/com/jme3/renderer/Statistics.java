@@ -57,6 +57,7 @@ public class Statistics {
      */
     protected int numObjects;
     protected int numLights;
+    protected int numLightsInUse;
     /**
      * Number of mesh primitives rendered during the current frame.
      */
@@ -138,7 +139,8 @@ public class Statistics {
                              "Uniforms",
 
                              "Objects",
-                             "Lights",
+                             "LightsCalcs",
+                             "LightsInUse",
 
                              "Shaders (S)",
                              "Shaders (F)",
@@ -171,22 +173,23 @@ public class Statistics {
         data[2] = numUniformsSet;
         data[3] = numObjects;
         data[4] = numLights;
+        data[5] = numLightsInUse;
 
-        data[5] = numShaderSwitches;
-        data[6] = shadersUsed.size();
-        data[7] = memoryShaders;
+        data[6] = numShaderSwitches;
+        data[7] = shadersUsed.size();
+        data[8] = memoryShaders;
 
-        data[8] = numTextureBinds;
-        data[9] = texturesUsed.size();
-        data[10] = memoryTextures;
+        data[9] = numTextureBinds;
+        data[10] = texturesUsed.size();
+        data[11] = memoryTextures;
 
-        data[11] = numFboSwitches;
-        data[12] = fbosUsed.size();
-        data[13] = memoryFrameBuffers;
+        data[12] = numFboSwitches;
+        data[13] = fbosUsed.size();
+        data[14] = memoryFrameBuffers;
 
-        data[14] = numVboBinds;
-        data[15] = vbosUsed.size();
-        data[16] = memoryVertexBuffers;
+        data[15] = numVboBinds;
+        data[16] = vbosUsed.size();
+        data[17] = memoryVertexBuffers;
     }
 
     /**
@@ -429,6 +432,13 @@ public class Statistics {
         }
 
         numLights += lightCount;
+    }
+
+    public void onLightsInUse(int count) {
+        if (!enabled) {
+            return;
+        }
+        numLightsInUse = count;
     }
 
     /**
