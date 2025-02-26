@@ -2917,7 +2917,7 @@ public final class GLRenderer implements Renderer {
             vb.setId(bufId);
             objManager.registerObject(vb);
 
-            //statistics.onNewVertexBuffer();
+            statistics.onNewVertexBuffer();
 
             created = true;
         }
@@ -2929,18 +2929,18 @@ public final class GLRenderer implements Renderer {
             if (context.boundElementArrayVBO != bufId) {
                 gl.glBindBuffer(target, bufId);
                 context.boundElementArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
+                statistics.onVertexBufferUse(vb, true);
             } else {
-                //statistics.onVertexBufferUse(vb, false);
+                statistics.onVertexBufferUse(vb, false);
             }
         } else {
             target = GL.GL_ARRAY_BUFFER;
             if (context.boundArrayVBO != bufId) {
                 gl.glBindBuffer(target, bufId);
                 context.boundArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
+                statistics.onVertexBufferUse(vb, true);
             } else {
-                //statistics.onVertexBufferUse(vb, false);
+                statistics.onVertexBufferUse(vb, false);
             }
         }
 
@@ -3075,7 +3075,7 @@ public final class GLRenderer implements Renderer {
             gl.glDeleteBuffers(intBuf1);
             vb.resetObject();
 
-            //statistics.onDeleteVertexBuffer();
+            statistics.onDeleteVertexBuffer();
         }
     }
 
@@ -3173,9 +3173,9 @@ public final class GLRenderer implements Renderer {
             if (context.boundArrayVBO != bufId) {
                 gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufId);
                 context.boundArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
+                statistics.onVertexBufferUse(vb, true);
             } else {
-                //statistics.onVertexBufferUse(vb, false);
+                statistics.onVertexBufferUse(vb, false);
             }
 
             if (slotsRequired == 1) {
@@ -3266,9 +3266,9 @@ public final class GLRenderer implements Renderer {
         if (context.boundElementArrayVBO != bufId) {
             gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufId);
             context.boundElementArrayVBO = bufId;
-            //statistics.onVertexBufferUse(indexBuf, true);
+            statistics.onVertexBufferUse(indexBuf, true);
         } else {
-            //statistics.onVertexBufferUse(indexBuf, true);
+            statistics.onVertexBufferUse(indexBuf, false);
         }
 
         int vertCount = mesh.getVertexCount();

@@ -32,6 +32,7 @@
 package com.jme3.renderer;
 
 import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
@@ -72,6 +73,10 @@ public class Statistics {
      */
     protected int numTextureBinds;
     /**
+     * Number of VBO binds during the current frame.
+     */
+    protected int numVboBinds;
+    /**
      * Number of FBO switches during the current frame.
      */
     protected int numFboSwitches;
@@ -92,6 +97,10 @@ public class Statistics {
      * Number of active textures.
      */
     protected int memoryTextures;
+    /**
+     * Number of active verter buffers.
+     */
+    protected int memoryVertexBuffers;
 
     /**
      * IDs of all shaders in use.
@@ -101,6 +110,10 @@ public class Statistics {
      * IDs of all textures in use.
      */
     protected IntMap<Void> texturesUsed = new IntMap<>();
+    /**
+     * IDs of all VBOs in use.
+     */
+    protected IntMap<Void> vbosUsed = new IntMap<>();
     /**
      * IDs of all FBOs in use.
      */
@@ -135,7 +148,11 @@ public class Statistics {
 
                              "FrameBuffers (S)",
                              "FrameBuffers (F)",
-                             "FrameBuffers (M)" };
+                             "FrameBuffers (M)",
+
+                             "Vertex Buffers (S)",
+                             "Vertex Buffers (F)",
+                             "Vertex Buffers (M)", };
 
     }
 
@@ -163,6 +180,10 @@ public class Statistics {
         data[10] = numFboSwitches;
         data[11] = fbosUsed.size();
         data[12] = memoryFrameBuffers;
+
+        data[13] = numVboBinds;
+        data[14] = vbosUsed.size();
+        data[15] = memoryVertexBuffers;
     }
 
     /**
@@ -251,6 +272,22 @@ public class Statistics {
         }
     }
 
+    public void onVertexBufferUse(VertexBuffer vb, boolean wasSwitched) {
+        assert vb.getId() >= 1;
+
+        if (!enabled) {
+            return;
+        }
+
+        if (!vbosUsed.containsKey(vb.getId())) {
+            vbosUsed.put(vb.getId(), null);
+        }
+
+        if (wasSwitched) {
+            ++numVboBinds;
+        }
+    }
+
     /**
      * Called by the Renderer when a framebuffer has been set.
      *
@@ -281,6 +318,7 @@ public class Statistics {
     public void clearFrame() {
         shadersUsed.clear();
         texturesUsed.clear();
+        vbosUsed.clear();
         fbosUsed.clear();
 
         numObjects = 0;
@@ -288,6 +326,7 @@ public class Statistics {
         numVertices = 0;
         numShaderSwitches = 0;
         numTextureBinds = 0;
+        numVboBinds = 0;
         numFboSwitches = 0;
         numUniformsSet = 0;
 
@@ -325,6 +364,16 @@ public class Statistics {
     }
 
     /**
+     * Called by the Renderer when it creates a new vertex buffer.
+     */
+    public void onNewVertexBuffer() {
+        if (!enabled) {
+            return;
+        }
+        ++memoryVertexBuffers;
+    }
+
+    /**
      * Called by the Renderer when it deletes a shader.
      */
     public void onDeleteShader() {
@@ -355,12 +404,23 @@ public class Statistics {
     }
 
     /**
+     * Called by the Renderer when it deletes a vertex buffer.
+     */
+    public void onDeleteVertexBuffer() {
+        if (!enabled) {
+            return;
+        }
+        --memoryVertexBuffers;
+    }
+
+    /**
      * Called when video memory is cleared.
      */
     public void clearMemory() {
         memoryFrameBuffers = 0;
         memoryShaders = 0;
         memoryTextures = 0;
+        memoryVertexBuffers = 0;
     }
 
     /**
