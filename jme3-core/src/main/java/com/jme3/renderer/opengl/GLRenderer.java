@@ -625,6 +625,8 @@ public final class GLRenderer implements Renderer {
 
         if (caps.contains(Caps.OpenGL43) || hasExtension("GL_KHR_debug") || caps.contains(Caps.WebGL)) {
             caps.add(Caps.GLDebug);
+        } else {
+            debug = false;
         }
 
         // Print context information
@@ -1981,7 +1983,7 @@ public final class GLRenderer implements Renderer {
             // Check NPOT requirements
             checkNonPowerOfTwo(tex);
 
-            updateTexImageData(image, tex.getType(), 0, false);
+            updateTexImageData(image, tex, 0, false);
 
             // NOTE: For depth textures, sets nearest/no-mips mode
             // Required to fix "framebuffer unsupported"
@@ -2056,6 +2058,11 @@ public final class GLRenderer implements Renderer {
             fb.setId(id);
             objManager.registerObject(fb);
             statistics.onNewFrameBuffer();
+
+            if (debug && fb.getName() != null) {
+                bindFrameBuffer(fb);
+                glext.glObjectLabel(GL3.GL_FRAMEBUFFER, id, fb.getName());
+            }
         }
 
         bindFrameBuffer(fb);
@@ -2223,9 +2230,6 @@ public final class GLRenderer implements Renderer {
             assert context.boundFBO == fb.getId();
 
             context.boundFB = fb;
-            if (debug && caps.contains(Caps.GLDebug)) {
-                if (fb.getName() != null) glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
-            }
         }
     }
 
@@ -2588,8 +2592,9 @@ public final class GLRenderer implements Renderer {
      * @param scaleToPot If true, the image will be scaled to power-of-2 dimensions
      * before being uploaded.
      */
-    public void updateTexImageData(Image img, Texture.Type type, int unit, boolean scaleToPot) {
+    private void updateTexImageData(Image img, Texture tex, int unit, boolean scaleToPot) {
         int texId = img.getId();
+        boolean created = false;
         if (texId == -1) {
             // create texture
             gl.glGenTextures(intBuf1);
@@ -2598,11 +2603,15 @@ public final class GLRenderer implements Renderer {
             objManager.registerObject(img);
 
             statistics.onNewTexture();
+            created = true;
         }
 
         // bind texture
-        int target = convertTextureType(type, img.getMultiSamples(), -1);
+        int target = convertTextureType(tex.getType(), img.getMultiSamples(), -1);
         bindTextureAndUnit(target, img, unit);
+        if (debug && created && tex.getName() != null) {
+            glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getId(), tex.getName());
+        }
 
         int imageSamples = img.getMultiSamples();
         if (imageSamples <= 1) {
@@ -2742,16 +2751,13 @@ public final class GLRenderer implements Renderer {
                 scaleToPot = true;
             }
 
-            updateTexImageData(image, tex.getType(), unit, scaleToPot);
+            updateTexImageData(image, tex, unit, scaleToPot);
         }
 
         int texId = image.getId();
         assert texId != -1;
 
         setupTextureParams(unit, tex);
-        if (debug && caps.contains(Caps.GLDebug)) {
-            if (tex.getName() != null) glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getId(), tex.getName());
-        }
     }
     
     @Override
@@ -2780,11 +2786,6 @@ public final class GLRenderer implements Renderer {
         }
 
         bufferObject.setBinding(bindingPoint);
-
-        if (debug && caps.contains(Caps.GLDebug)) {
-            if (bufferObject.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, bufferObject.getId(), bufferObject.getName());
-        }
-
     }
 
     @Override
@@ -2798,10 +2799,6 @@ public final class GLRenderer implements Renderer {
             context.boundBO[bindingPoint] = bufferObject.getWeakRef();
         }
         bufferObject.setBinding(bindingPoint);
-
-        if (debug && caps.contains(Caps.GLDebug)) {
-            if (bufferObject.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, bufferObject.getId(), bufferObject.getName());
-        }
     }
 
     /**
@@ -2944,6 +2941,10 @@ public final class GLRenderer implements Renderer {
             }
         }
 
+        if (debug && created) {
+            glext.glObjectLabel(GLExt.GL_BUFFER, vb.getId(), vb.getName());
+        }
+
         int usage = convertUsage(vb.getUsage());
         vb.getData().rewind();
 
@@ -3037,6 +3038,11 @@ public final class GLRenderer implements Renderer {
             bo.setId(bufferId);
 
             objManager.registerObject(bo);
+
+            if (debug && bo.getName() != null) {
+                gl3.glBindBuffer(type, bufferId);
+                glext.glObjectLabel(GLExt.GL_BUFFER, bufferId, bo.getName());
+            }
         }
 
         DirtyRegionsIterator it = bo.getDirtyRegions();
@@ -3215,9 +3221,6 @@ public final class GLRenderer implements Renderer {
                 }
                 attribs[slot] = vb.getWeakRef();
             }
-        }
-        if (debug && caps.contains(Caps.GLDebug)) {
-            if (vb.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, vb.getId(), vb.getName());
         }
     }
 
