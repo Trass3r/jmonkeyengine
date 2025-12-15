@@ -227,7 +227,7 @@ public abstract class LwjglContext implements JmeContext {
                 glfbo = new LwjglGLFboEXT();
             }
 
-            if (settings.isGraphicsDebug()) {
+            if (settings.isGraphicsDebug() && !capabilities.GL_ARB_debug_output) {
                 gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
                 glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
                 glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
