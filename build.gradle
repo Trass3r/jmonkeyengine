@@ -24,6 +24,7 @@ allprojects {
     tasks.withType(Jar) {
         duplicatesStrategy = 'include'
     }
+    tasks.withType(Javadoc).all { enabled = false }
 }
 
 // Set the license for IDEs that understand this
