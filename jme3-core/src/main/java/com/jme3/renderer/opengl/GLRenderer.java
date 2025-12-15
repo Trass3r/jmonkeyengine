@@ -2950,6 +2950,10 @@ public final class GLRenderer implements Renderer {
         int usage = convertUsage(vb.getUsage());
         vb.getData().rewind();
 
+        if (!created) {
+            // gl.glBufferData(target, 0, usage); // orphan the buffer
+        }
+
         switch (vb.getFormat()) {
             case Byte:
             case UnsignedByte:
